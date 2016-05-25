@@ -89,6 +89,17 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Finds user by email.
+     *
+     * @param  string $email
+     * @return static|null
+     */
+    public static function findByEmail($email)
+    {
+        return static::findOne(['email' => $email, 'status' => User::STATUS_ACTIVE]);
+    }
+
+    /**
      * Finds user by password reset token
      *
      * @param string $token password reset token
@@ -193,9 +204,9 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     // checks whether $username admin
-    public static function isUserAdmin($username)
+    public static function isUserAdmin($email)
     {
-        if (static::findOne(['username' => $username, 'role' => self::ROLE_ADMIN])){
+        if (static::findOne(['email' => $email, 'role' => self::ROLE_ADMIN])){
             return true;
         } else {
             return false;
