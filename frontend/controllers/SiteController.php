@@ -9,6 +9,7 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
 use common\models\User;
+use frontend\models\AccountActivation;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
@@ -19,6 +20,12 @@ use frontend\models\ContactForm;
  */
 class SiteController extends Controller
 {
+
+    /**
+     * @var \common\models\User
+     */
+    private $_user;
+
     /**
      * @inheritdoc
      */
@@ -27,12 +34,22 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup', 'about'],
+                'only' => ['logout', 'signup', 'about', 'invitations','activateAccount'],
                 'rules' => [
                     [
                         'actions' => ['signup'],
                         'allow' => true,
                         'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['activateAccount'],
+                        'allow' => true,
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['invitations'],
+                        'allow' => true,
+                        'roles' => ['@'],
                     ],
                     [
                         'actions' => ['logout'],
@@ -44,7 +61,7 @@ class SiteController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function ($rule, $action) {
-                            return User::isUserAdmin(Yii::$app->user->identity->username);
+                            return User::isUserAdmin(Yii::$app->user->identity->email);
                         }
                     ],
                 ],
@@ -97,7 +114,7 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->goHome();
         } else {
             return $this->render('login', [
                 'model' => $model,
@@ -141,6 +158,35 @@ class SiteController extends Controller
     }
 
     /**
+     * Displays account activation successful page.
+     *
+     * @return mixed
+     * @throws \yii\base\InvalidParamException if token is empty or not valid
+     * @throws BadRequestHttpException
+     */
+    public function actionActivateAccount($token)
+    {
+        try {
+            $user = new AccountActivation($token);
+        } catch (InvalidParamException $e) {
+            throw new BadRequestHttpException($e->getMessage());
+        }
+
+        if ($user->activateAccount())
+        {
+            Yii::$app->session->setFlash('success',
+                'Success! You can now log in.');
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error',
+                'Your account could not be activated.');
+        }
+
+        return $this->redirect('login');
+    }
+
+    /**
      * Displays about page.
      *
      * @return mixed
@@ -170,9 +216,9 @@ class SiteController extends Controller
         $model = new SignupForm();
         if ($model->load(Yii::$app->request->post())) {
             if ($user = $model->signup()) {
-                if (Yii::$app->getUser()->login($user)) {
-                    return $this->goHome();
-                }
+//                if (Yii::$app->getUser()->login($user)) {
+//                    return $this->goHome();
+//                }
             }
         }
 

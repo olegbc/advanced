@@ -15,6 +15,7 @@ use yii\web\IdentityInterface;
  * @property string $password_hash
  * @property string $password_reset_token
  * @property string $email
+ * @property string  $account_activation_token
  * @property string $auth_key
  * @property integer $status
  * @property integer $created_at
@@ -24,11 +25,11 @@ use yii\web\IdentityInterface;
 class User extends ActiveRecord implements IdentityInterface
 {
     const STATUS_DELETED = 0;
+    const STATUS_NOT_ACTIVE = 1;
     const STATUS_ACTIVE = 10;
 
     const ROLE_USER = 10;
     const ROLE_ADMIN = 20;
-
 
     /**
      * @inheritdoc
@@ -54,8 +55,8 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            ['status', 'default', 'value' => self::STATUS_NOT_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_NOT_ACTIVE, self::STATUS_DELETED]],
             ['role', 'default', 'value' => 10],
             ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]],
         ];
@@ -116,6 +117,42 @@ class User extends ActiveRecord implements IdentityInterface
             'status' => self::STATUS_ACTIVE,
         ]);
     }
+
+    /**
+     * Finds user by account activate token
+     *
+     * @param string $token account activate token
+     * @return static|null
+     */
+    public static function findByAccountActivationToken($token)
+    {
+        if (!static::isAccountActivateTokenValid($token)) {
+            return null;
+        }
+
+        return static::findOne([
+            'account_activation_token' => $token,
+            'status' => self::STATUS_NOT_ACTIVE,
+        ]);
+    }
+
+    /**
+     * Finds out if account activate token is valid
+     *
+     * @param string $token account activate token
+     * @return boolean
+     */
+    public static function isAccountActivateTokenValid($token)
+    {
+        if (empty($token)) {
+            return false;
+        }
+
+        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $expire = Yii::$app->params['user.accountActivateTokenExpire'];
+        return $timestamp + $expire >= time();
+    }
+
 
     /**
      * Finds out if password reset token is valid
@@ -188,11 +225,27 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Generates "remember me" authentication key
+     */
+    public function setStatusNotActive()
+    {
+        $this->status = self::STATUS_NOT_ACTIVE;
+    }
+
+    /**
      * Generates new password reset token
      */
     public function generatePasswordResetToken()
     {
         $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
+    }
+
+    /**
+     * Generates new account activate token
+     */
+    public function generateAccountActivateToken()
+    {
+        $this->account_activate_token = Yii::$app->security->generateRandomString() . '_' . time();
     }
 
     /**
@@ -203,7 +256,15 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password_reset_token = null;
     }
 
-    // checks whether $username admin
+    /**
+     * Removes password reset token
+     */
+    public function removeAccountActivateToken()
+    {
+        $this->account_activate_token = null;
+    }
+
+    // checks whether $email admin
     public static function isUserAdmin($email)
     {
         if (static::findOne(['email' => $email, 'role' => self::ROLE_ADMIN])){
@@ -212,5 +273,21 @@ class User extends ActiveRecord implements IdentityInterface
             return false;
         }
 
+    }
+
+    /**
+     * Generates new account activation token.
+     */
+    public function generateAccountActivationToken()
+    {
+        return $this->account_activation_token = Yii::$app->security->generateRandomString() . '_' . time();
+    }
+
+    /**
+     * Removes account activation token.
+     */
+    public function removeAccountActivationToken()
+    {
+        $this->account_activation_token = null;
     }
 }
