@@ -214,12 +214,10 @@ class SiteController extends Controller
     public function actionSignup()
     {
         $model = new SignupForm();
+        //default sex checked is male
+        $model->sex = 1;
         if ($model->load(Yii::$app->request->post())) {
-            if ($user = $model->signup()) {
-//                if (Yii::$app->getUser()->login($user)) {
-//                    return $this->goHome();
-//                }
-            }
+            $model->signup();
         }
 
         return $this->render('signup', [

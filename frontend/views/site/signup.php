@@ -23,6 +23,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?= $form->field($model, 'password')->passwordInput() ?>
 
+                <?= $form->field($model, 'name')->textInput() ?>
+
+                <?= $form->field($model, 'sex')->radioList([1 => 'male', 2 => 'femail']) ?>
+
+                <?= $form->field($model, 'location')->textInput() ?>
+
                 <div class="form-group">
                     <?= Html::submitButton('Signup', ['class' => 'btn btn-primary', 'name' => 'signup-button']) ?>
                 </div>

@@ -14,6 +14,9 @@ class SignupForm extends Model
     public $email;
     public $password;
     public $status;
+    public $name;
+    public $sex;
+    public $location;
 
 
     /**
@@ -22,11 +25,6 @@ class SignupForm extends Model
     public function rules()
     {
         return [
-//            ['username', 'filter', 'filter' => 'trim'],
-//            ['username', 'required'],
-//            ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
-//            ['username', 'string', 'min' => 2, 'max' => 255],
-
             ['email', 'filter', 'filter' => 'trim'],
             ['email', 'required'],
             ['email', 'email'],
@@ -38,7 +36,16 @@ class SignupForm extends Model
 
             // status is set to not active for registration with activation
             ['status', 'default', 'value' => User::STATUS_NOT_ACTIVE],
-            ['status', 'in', 'range' => [User::STATUS_NOT_ACTIVE, User::STATUS_ACTIVE]]
+            ['status', 'in', 'range' => [User::STATUS_NOT_ACTIVE, User::STATUS_ACTIVE]],
+
+            ['name', 'filter', 'filter' => 'trim'],
+            ['name', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
+            ['name', 'string', 'min' => 2, 'max' => 255],
+
+            ['sex', 'integer', 'min' => 1, 'max' => 2],
+
+            ['name', 'filter', 'filter' => 'trim'],
+            ['location', 'string', 'min' => 2, 'max' => 255],
         ];
     }
 
@@ -56,6 +63,15 @@ class SignupForm extends Model
         $user = new User();
         $user->email = $this->email;
         $user->setPassword($this->password);
+        if ($this->name) {
+            $user->name = $this->name;
+        }
+        if ($this->sex) {
+            $user->sex = $this->sex;
+        }
+        if ($this->location) {
+            $user->location = $this->location;
+        }
         $user->setStatusNotActive();
         $user->generateAuthKey();
         //generate account activation token, store it at db and send account activation email with this token
