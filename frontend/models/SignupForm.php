@@ -10,7 +10,6 @@ use common\models\User;
  */
 class SignupForm extends Model
 {
-//    public $username;
     public $email;
     public $password;
     public $status;
@@ -35,8 +34,8 @@ class SignupForm extends Model
             ['password', 'string', 'min' => 6],
 
             // status is set to not active for registration with activation
-            ['status', 'default', 'value' => User::STATUS_NOT_ACTIVE],
-            ['status', 'in', 'range' => [User::STATUS_NOT_ACTIVE, User::STATUS_ACTIVE]],
+            ['status', 'default', 'value' => User::STATUS_NOT_REGISTERED],
+            ['status', 'in', 'range' => [User::STATUS_NOT_REGISTERED, User::STATUS_REGISTERED]],
 
             ['name', 'filter', 'filter' => 'trim'],
             ['name', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
@@ -72,11 +71,11 @@ class SignupForm extends Model
         if ($this->location) {
             $user->location = $this->location;
         }
-        $user->setStatusNotActive();
+        $user->setStatusNotRegistered();
         $user->generateAuthKey();
-        //generate account activation token, store it at db and send account activation email with this token
-        if($user->generateAccountActivationToken() && $this->sendAccountActivationEmail($user)){
-            Yii::$app->session->setFlash('success',"Check Your Email To Activate Your Account");
+        //generate account registration token, store it at db and send account registration email with this token
+        if($user->generateAccountRegistrationToken() && $this->sendAccountRegistrationEmail($user)){
+            Yii::$app->session->setFlash('success',"Check Your Email To Register Your Account");
         }
 
         return $user->save() ? $user : null;
@@ -88,12 +87,12 @@ class SignupForm extends Model
      * @param  object $user Registered user.
      * @return bool Whether the message has been sent successfully.
      */
-    public function sendAccountActivationEmail($user)
+    public function sendAccountRegistrationEmail($user)
     {
-        return Yii::$app->mailer->compose('accountActivationToken', ['user' => $user])
+        return Yii::$app->mailer->compose('accountRegistrationToken', ['user' => $user])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->name . ' robot'])
             ->setTo($this->email)
-            ->setSubject('Account activation for ' . Yii::$app->name)
+            ->setSubject('Account register for ' . Yii::$app->name)
             ->send();
     }
 }

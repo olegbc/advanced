@@ -15,18 +15,20 @@ use yii\web\IdentityInterface;
  * @property string $password_hash
  * @property string $password_reset_token
  * @property string $email
- * @property string  $account_activation_token
+ * @property string  $account_registration_token
  * @property string $auth_key
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
+ * @property integer $sent_date
  * @property string $password write-only password
  */
 class User extends ActiveRecord implements IdentityInterface
 {
     const STATUS_DELETED = 0;
-    const STATUS_NOT_ACTIVE = 1;
-    const STATUS_ACTIVE = 10;
+    const STATUS_INVITED = 1;
+    const STATUS_NOT_REGISTERED = 5;
+    const STATUS_REGISTERED = 10;
 
     const ROLE_USER = 10;
     const ROLE_ADMIN = 20;
@@ -55,8 +57,8 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            ['status', 'default', 'value' => self::STATUS_NOT_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_NOT_ACTIVE, self::STATUS_DELETED]],
+            ['status', 'default', 'value' => self::STATUS_NOT_REGISTERED],
+            ['status', 'in', 'range' => [self::STATUS_REGISTERED, self::STATUS_NOT_REGISTERED, self::STATUS_INVITED, self::STATUS_DELETED]],
             ['role', 'default', 'value' => 10],
             ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]],
         ];
@@ -67,7 +69,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentity($id)
     {
-        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne(['id' => $id, 'status' => self::STATUS_REGISTERED]);
     }
 
     /**
@@ -86,7 +88,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findByUsername($username)
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne(['username' => $username, 'status' => self::STATUS_REGISTERED]);
     }
 
     /**
@@ -97,7 +99,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findByEmail($email)
     {
-        return static::findOne(['email' => $email, 'status' => User::STATUS_ACTIVE]);
+        return static::findOne(['email' => $email, 'status' => User::STATUS_REGISTERED]);
     }
 
     /**
@@ -114,7 +116,7 @@ class User extends ActiveRecord implements IdentityInterface
 
         return static::findOne([
             'password_reset_token' => $token,
-            'status' => self::STATUS_ACTIVE,
+            'status' => self::STATUS_REGISTERED,
         ]);
     }
 
@@ -124,15 +126,15 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $token account activate token
      * @return static|null
      */
-    public static function findByAccountActivationToken($token)
+    public static function findByAccountRegistrationToken($token, $invited)
     {
         if (!static::isAccountActivateTokenValid($token)) {
             return null;
         }
 
         return static::findOne([
-            'account_activation_token' => $token,
-            'status' => self::STATUS_NOT_ACTIVE,
+            'account_registration_token' => $token,
+            'status' => $invited == self::STATUS_INVITED ? self::STATUS_INVITED : self::STATUS_NOT_REGISTERED,
         ]);
     }
 
@@ -227,9 +229,33 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * Generates "remember me" authentication key
      */
-    public function setStatusNotActive()
+    public function generatePassword()
     {
-        $this->status = self::STATUS_NOT_ACTIVE;
+        return Yii::$app->security->generateRandomString();
+    }
+
+    /**
+     * Set user status to not active(10)
+     */
+    public function setStatusNotRegistered()
+    {
+        $this->status = self::STATUS_NOT_REGISTERED;
+    }
+
+    /**
+     * Set user status to invited(1)
+     */
+    public function setStatusInvited()
+    {
+        $this->status = self::STATUS_INVITED;
+    }
+
+    /**
+     * Set sent invitation date
+     */
+    public function setSentDate()
+    {
+        $this->sent_date = time();
     }
 
     /**
@@ -241,27 +267,11 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Generates new account activate token
-     */
-    public function generateAccountActivateToken()
-    {
-        $this->account_activate_token = Yii::$app->security->generateRandomString() . '_' . time();
-    }
-
-    /**
      * Removes password reset token
      */
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
-    }
-
-    /**
-     * Removes password reset token
-     */
-    public function removeAccountActivateToken()
-    {
-        $this->account_activate_token = null;
     }
 
     // checks whether $email admin
@@ -276,18 +286,18 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Generates new account activation token.
+     * Generates new account registration token.
      */
-    public function generateAccountActivationToken()
+    public function generateAccountRegistrationToken()
     {
-        return $this->account_activation_token = Yii::$app->security->generateRandomString() . '_' . time();
+        return $this->account_registration_token = Yii::$app->security->generateRandomString() . '_' . time();
     }
 
     /**
-     * Removes account activation token.
+     * Removes account registration token.
      */
-    public function removeAccountActivationToken()
+    public function removeAccountRegistrationToken()
     {
-        $this->account_activation_token = null;
+        $this->account_registration_token = null;
     }
 }

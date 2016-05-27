@@ -36,7 +36,8 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php ActiveForm::end(); ?>
 
             <div style="color:#666;margin:1em 0">
-                <i>*We will send you an email with account activation link.</i>
+                <i><span style="color:red">*</span> Required fields.</i><br />
+                <i>** We will send you an email with account activation link.</i>
             </div>
         </div>
     </div>

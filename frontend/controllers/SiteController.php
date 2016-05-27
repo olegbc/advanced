@@ -9,10 +9,11 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
 use common\models\User;
-use frontend\models\AccountActivation;
+use frontend\models\AccountRegistration;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
+use frontend\models\InvitationsForm;
 use frontend\models\ContactForm;
 
 /**
@@ -164,15 +165,15 @@ class SiteController extends Controller
      * @throws \yii\base\InvalidParamException if token is empty or not valid
      * @throws BadRequestHttpException
      */
-    public function actionActivateAccount($token)
+    public function actionRegisterAccount($token, $invited)
     {
         try {
-            $user = new AccountActivation($token);
+            $user = new AccountRegistration($token, $invited);
         } catch (InvalidParamException $e) {
             throw new BadRequestHttpException($e->getMessage());
         }
 
-        if ($user->activateAccount())
+        if ($user->registerAccount())
         {
             Yii::$app->session->setFlash('success',
                 'Success! You can now log in.');
@@ -203,7 +204,15 @@ class SiteController extends Controller
      */
     public function actionInvitations()
     {
-        return $this->render('invitations');
+        $model = new InvitationsForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+            $model->sendInvitation();
+        }
+
+        return $this->render('invitations', [
+            'model' => $model,
+        ]);
     }
 
     /**
