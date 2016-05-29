@@ -7,7 +7,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use common\models\LoginForm;
+use common\models\SigninForm;
 use common\models\User;
 use frontend\models\AccountRegistration;
 use frontend\models\PasswordResetRequestForm;
@@ -106,17 +106,28 @@ class SiteController extends Controller
      *
      * @return mixed
      */
-    public function actionLogin()
+    public function actionSignin()
     {
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goHome();
+        $model = new SigninForm();
+        if ($model->load(Yii::$app->request->post()) && $model->signin()) {
+            if ($user = User::findOne(['email' => Yii::$app->user->identity['email'], 'status' => User::STATUS_REGISTERED])) {
+                $user->last_signin = time();
+                if ($user->save()) {
+                    return $this->goHome();
+                }
+                return $this->render('signin', [
+                    'model' => $model,
+                ]);
+            }
+            return $this->render('signin', [
+                'model' => $model,
+            ]);
         } else {
-            return $this->render('login', [
+            return $this->render('signin', [
                 'model' => $model,
             ]);
         }

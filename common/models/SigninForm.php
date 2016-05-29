@@ -7,7 +7,7 @@ use yii\base\Model;
 /**
  * Login form
  */
-class LoginForm extends Model
+class SigninForm extends Model
 {
     public $email;
     public $password;
@@ -54,9 +54,10 @@ class LoginForm extends Model
      *
      * @return boolean whether the user is logged in successfully
      */
-    public function login()
+    public function signin()
     {
         if ($this->validate()) {
+
             return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
         } else {
             $this->addError('password', 'Incorrect email or password.');

@@ -28,6 +28,8 @@ class User extends ActiveRecord implements IdentityInterface
     const STATUS_DELETED = 0;
     const STATUS_INVITED = 1;
     const STATUS_NOT_REGISTERED = 5;
+    const STATUS_BLOCKED = 6;
+    const STATUS_REMOVED = 7;
     const STATUS_REGISTERED = 10;
 
     const ROLE_USER = 10;
