@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?= $form->field($model, 'name')->textInput() ?>
 
-                <?= $form->field($model, 'sex')->radioList([1 => 'male', 2 => 'femail']) ?>
+                <?= $form->field($model, 'sex')->radioList(['male' => 'male', 'femail' => 'femail']) ?>
 
                 <?= $form->field($model, 'location')->textInput() ?>
 

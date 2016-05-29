@@ -38,12 +38,15 @@ class SignupForm extends Model
             ['status', 'in', 'range' => [User::STATUS_NOT_REGISTERED, User::STATUS_REGISTERED]],
 
             ['name', 'filter', 'filter' => 'trim'],
+            ['name', 'required'],
             ['name', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
             ['name', 'string', 'min' => 2, 'max' => 255],
 
-            ['sex', 'integer', 'min' => 1, 'max' => 2],
+            ['sex', 'string'],
+            ['sex', 'required'],
 
-            ['name', 'filter', 'filter' => 'trim'],
+            ['location', 'filter', 'filter' => 'trim'],
+            ['location', 'required'],
             ['location', 'string', 'min' => 2, 'max' => 255],
         ];
     }

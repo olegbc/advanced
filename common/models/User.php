@@ -259,6 +259,14 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Set inviter email
+     */
+    public function setInviter($email)
+    {
+        $this->inviter = $email;
+    }
+
+    /**
      * Generates new password reset token
      */
     public function generatePasswordResetToken()

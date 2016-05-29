@@ -110,7 +110,11 @@ a.desc:after {
     text-decoration: none;
 }
 
-div.required label:after {
+div.required  label:after {
     content: " *";
     color: red;
+}
+
+div.required .radio label:after {
+    content: "";
 }

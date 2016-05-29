@@ -13,9 +13,8 @@ use frontend\models\AccountRegistration;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
-use frontend\models\InvitationsForm;
-use frontend\models\ContactForm;
-
+use frontend\models\InviteFriendForm;
+use frontend\models\FeedbackForm;
 /**
  * Site controller
  */
@@ -140,9 +139,9 @@ class SiteController extends Controller
      *
      * @return mixed
      */
-    public function actionContact()
+    public function actionFeedbackForm()
     {
-        $model = new ContactForm();
+        $model = new FeedbackForm();
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
                 Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible.');
@@ -152,7 +151,7 @@ class SiteController extends Controller
 
             return $this->refresh();
         } else {
-            return $this->render('contact', [
+            return $this->render('feedbackForm', [
                 'model' => $model,
             ]);
         }
@@ -165,7 +164,7 @@ class SiteController extends Controller
      * @throws \yii\base\InvalidParamException if token is empty or not valid
      * @throws BadRequestHttpException
      */
-    public function actionRegisterAccount($token, $invited)
+    public function actionRegisterAccount($token, $invited = null)
     {
         try {
             $user = new AccountRegistration($token, $invited);
@@ -202,15 +201,15 @@ class SiteController extends Controller
      *
      * @return mixed
      */
-    public function actionInvitations()
+    public function actionInviteFriend()
     {
-        $model = new InvitationsForm();
+        $model = new InviteFriendForm();
 
         if ($model->load(Yii::$app->request->post())) {
             $model->sendInvitation();
         }
 
-        return $this->render('invitations', [
+        return $this->render('invitateFriend', [
             'model' => $model,
         ]);
     }
@@ -223,8 +222,7 @@ class SiteController extends Controller
     public function actionSignup()
     {
         $model = new SignupForm();
-        //default sex checked is male
-        $model->sex = 1;
+        //code for default sex checked is male:  $model->sex = 'male';
         if ($model->load(Yii::$app->request->post())) {
             $model->signup();
         }

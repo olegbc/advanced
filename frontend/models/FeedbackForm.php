@@ -6,9 +6,9 @@ use Yii;
 use yii\base\Model;
 
 /**
- * ContactForm is the model behind the contact form.
+ * FeedbackForm is the model behind the feedback form.
  */
-class ContactForm extends Model
+class FeedbackForm extends Model
 {
     public $name;
     public $email;

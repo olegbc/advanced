@@ -8,7 +8,7 @@ use common\models\User;
 /**
  * Signup form
  */
-class InvitationsForm extends Model
+class InviteFriendForm extends Model
 {
     public $email;
     // password will be auto generated
@@ -49,6 +49,7 @@ class InvitationsForm extends Model
         if($user->generateAccountRegistrationToken() && $this->sendInvitationWithActivationTokenEmail($user)){
             Yii::$app->session->setFlash('success',"You`ev invited your friend.");
             $user->setSentDate();
+            $user->setInviter(Yii::$app->user->identity['email']);
         }
 
         return $user->save() ? $user : null;

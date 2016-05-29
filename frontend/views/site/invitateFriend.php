@@ -5,13 +5,11 @@
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
-$this->title = 'Invitations';
+$this->title = 'Invite friend';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="site-about">
     <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>Here you can invitepeople, view own invitations, view invitations’ details.</p>
 
     <p>Invite your friend by mail: </p>
 
