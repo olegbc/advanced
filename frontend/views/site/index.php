@@ -5,6 +5,12 @@
 $this->title = 'My Yii Application';
 ?>
 <div class="site-index">
+    <div
+        class="fb-like"
+        data-share="true"
+        data-width="450"
+        data-show-faces="true">
+    </div>
     <?php if(Yii::$app->session->getFlash('succsess')): ?>
         <div class="alert-success alert fade in">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>

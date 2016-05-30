@@ -118,3 +118,7 @@ div.required  label:after {
 div.required .radio label:after {
     content: "";
 }
+
+.auth-clients {
+    padding: 0 !important;
+}

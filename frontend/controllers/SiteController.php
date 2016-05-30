@@ -15,6 +15,7 @@ use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\InviteFriendForm;
 use frontend\models\FeedbackForm;
+use common\components\AuthHandler;
 
 /**
  * Site controller
@@ -27,6 +28,8 @@ class SiteController extends Controller
      */
     private $_user;
 
+    public $successUrl = 'Success';
+
     /**
      * @inheritdoc
      */
@@ -35,10 +38,15 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup', 'aboutUs', 'invitations','activateAccount','inviteFriend'],
+                'only' => ['logout', 'signup', 'aboutUs', 'invitations','activateAccount','inviteFriend', 'auth'],
                 'rules' => [
                     [
                         'actions' => ['signup'],
+                        'allow' => true,
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['auth'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
@@ -91,7 +99,16 @@ class SiteController extends Controller
                 'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
+            'auth' => [
+                'class' => 'yii\authclient\AuthAction',
+                'successCallback' => [$this, 'onAuthSuccess'],
+            ],
         ];
+    }
+
+    public function onAuthSuccess($client)
+    {
+        (new AuthHandler($client))->handle();
     }
 
     /**
