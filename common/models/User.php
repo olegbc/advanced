@@ -25,7 +25,6 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    const STATUS_DELETED = 0;
     const STATUS_INVITED = 1;
     const STATUS_NOT_REGISTERED = 5;
     const STATUS_BLOCKED = 6;
@@ -60,7 +59,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             ['status', 'default', 'value' => self::STATUS_NOT_REGISTERED],
-            ['status', 'in', 'range' => [self::STATUS_REGISTERED, self::STATUS_NOT_REGISTERED, self::STATUS_INVITED, self::STATUS_DELETED]],
+            ['status', 'in', 'range' => [self::STATUS_REGISTERED, self::STATUS_NOT_REGISTERED, self::STATUS_INVITED, self::STATUS_BLOCKED, self::STATUS_REMOVED]],
             ['role', 'default', 'value' => 10],
             ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]],
         ];
@@ -285,7 +284,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     // checks whether $email admin
-    public static function isUserAdmin($email)
+/*    public static function isUserAdmin($email)
     {
         if (static::findOne(['email' => $email, 'role' => self::ROLE_ADMIN])){
             return true;
@@ -293,7 +292,7 @@ class User extends ActiveRecord implements IdentityInterface
             return false;
         }
 
-    }
+    }*/
 
     /**
      * Generates new account registration token.

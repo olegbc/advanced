@@ -41,15 +41,7 @@ class InvitationsListSearch extends User
      */
     public function search($params, $email)
     {
-//        $query = User::find()->andWhere(['inviter' => $email]);
-        $query = User::find()->andWhere(['not', ['sent_date' => 0]])->andWhere(['inviter' => $email]);
-//        $query = User::find()->andWhere(
-//            [
-//                ['sent_date' => 0],
-//                ['inviter' => null]
-//            ]
-//        );
-//        $query = User::find()->andWhere(['not',['sent_date' => 0]]);
+        $email ? $query = User::find()->andWhere(['not', ['sent_date' => 0]])->andWhere(['inviter' => $email]) : $query = User::find()->andWhere(['not', ['sent_date' => 0]]);
 
         // add conditions that should always apply here
 

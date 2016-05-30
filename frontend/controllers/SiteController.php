@@ -15,6 +15,7 @@ use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\InviteFriendForm;
 use frontend\models\FeedbackForm;
+
 /**
  * Site controller
  */
@@ -34,12 +35,17 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup', 'about', 'invitations','activateAccount'],
+                'only' => ['logout', 'signup', 'aboutUs', 'invitations','activateAccount','inviteFriend'],
                 'rules' => [
                     [
                         'actions' => ['signup'],
                         'allow' => true,
                         'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['inviteFriend'],
+                        'allow' => true,
+                        'roles' => ['@'],
                     ],
                     [
                         'actions' => ['activateAccount'],
@@ -57,12 +63,9 @@ class SiteController extends Controller
                         'roles' => ['@'],
                     ],
                     [
-                        'actions' => ['about'],
+                        'actions' => ['aboutUs'],
                         'allow' => true,
-                        'roles' => ['@'],
-                        'matchCallback' => function ($rule, $action) {
-                            return User::isUserAdmin(Yii::$app->user->identity->email);
-                        }
+                        'roles' => ['@']
                     ],
                 ],
             ],
@@ -198,13 +201,13 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays about page.
+     * Displays about us page.
      *
      * @return mixed
      */
-    public function actionAbout()
+    public function actionAboutUs()
     {
-        return $this->render('about');
+        return $this->render('aboutUs');
     }
 
     /**

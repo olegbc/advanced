@@ -15,6 +15,13 @@ return [
         'user' => [
             'identityClass' => 'common\models\User',
             'enableAutoLogin' => true,
+            'identityCookie' => [
+                'name' => '_frontendUser', // unique for frontend
+            ]
+        ],
+        'session' => [
+            'name' => 'PHPFRONTSESSID',
+            'savePath' => sys_get_temp_dir(),
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -44,7 +51,9 @@ return [
              'baseUrl' => '@web/assets'
         ],  
         'request' => [
-            'baseUrl' => ''
+            'baseUrl' => '',
+            'cookieValidationKey' => 'oXBo85JDJDycw17nRH5L',
+            'csrfParam' => '_frontendCSRF',
         ]
         
     ],

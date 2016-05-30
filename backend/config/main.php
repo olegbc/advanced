@@ -14,8 +14,15 @@ return [
     'modules' => [],
     'components' => [
         'user' => [
-            'identityClass' => 'common\models\User',
+            'identityClass' => 'common\models\Admin',
             'enableAutoLogin' => true,
+            'identityCookie' => [
+                'name' => '_backendUser', // unique for backend
+            ]
+        ],
+        'session' => [
+            'name' => 'PHPBACKSESSID',
+            'savePath' => sys_get_temp_dir(),
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -45,7 +52,9 @@ return [
             'baseUrl' => '@web/assets'
         ], 
         'request' => [
-            'baseUrl' => '/admin'
+            'baseUrl' => '/admin',
+            'cookieValidationKey' => 'jXtqkWsJlwCOjJNRqv3u',
+            'csrfParam' => '_backendCSRF',
         ] 
     ],
     'params' => $params,

@@ -1,6 +1,6 @@
 <?php
 
-namespace frontend\controllers;
+namespace backend\controllers;
 
 use Yii;
 use common\models\User;
@@ -23,10 +23,10 @@ class InvitationsListController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['index', 'view'],
+                'only' => ['index', 'view', 'update', 'block', 'delete'],
                 'rules' => [
                     [
-                        'actions' => ['index', 'view'],
+                        'actions' => ['index', 'view', 'update', 'block', 'delete'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -48,7 +48,7 @@ class InvitationsListController extends Controller
     public function actionIndex()
     {
         $searchModel = new InvitationsListSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, Yii::$app->user->identity['email']);
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, false);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -88,16 +88,33 @@ class InvitationsListController extends Controller
     }
 
     /**
-     * Deletes an existing User model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * Delete by changing status to removed(6)
+     * If changing is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $user = $this->findModel($id);
+        $user->status = User::STATUS_REMOVED;
+        if ($user->save()) {
+            return $this->redirect(['index']);
+        }
+    }
 
-        return $this->redirect(['index']);
+    /**
+     * Block by changing status to blocked(7)
+     * If changing is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionBlock($id)
+    {
+        $user = $this->findModel($id);
+        $user->status = User::STATUS_BLOCKED;
+        if ($user->save()) {
+            return $this->redirect(['index']);
+        }
     }
 
     /**

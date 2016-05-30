@@ -5,8 +5,7 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use common\models\SigninForm;
-use common\models\User;
+use common\models\AdminSigninForm;
 
 /**
  * Site controller
@@ -21,25 +20,17 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['index'],
+//                'only' => ['index'],
                 'rules' => [
                     [
-                        'actions' => ['index'],
+                        'actions' => ['signin', 'error'],
+                        'allow' => true,
+                    ],
+                    [
+                        'actions' => ['logout', 'index'],
                         'allow' => true,
                         'roles' => ['@'],
-                        'matchCallback' => function ($rule, $action) {
-                            return User::isUserAdmin(Yii::$app->user->identity->email);
-                        }
                     ],
-//                    [
-//                        'actions' => ['signin', 'error'],
-//                        'allow' => true,
-//                    ],
-//                    [
-//                        'actions' => ['logout', 'index'],
-//                        'allow' => true,
-//                        'roles' => ['@'],
-//                    ],
                 ],
             ],
             'verbs' => [
@@ -74,8 +65,8 @@ class SiteController extends Controller
             return $this->goHome();
         }
 
-        $model = new SigninForm();
-        if ($model->load(Yii::$app->request->post()) && $model->loginAdmin()) {
+        $model = new AdminSigninForm();
+        if ($model->load(Yii::$app->request->post()) && $model->signin()) {
             return $this->goBack();
         } else {
             return $this->render('signin', [

@@ -5,7 +5,6 @@ use yii\db\Migration;
 /**
  * Handles:
  * adding role to table `user`,
- * dropping username from table `user`,
  * adding role to table `user`,
  * adding account_registration_token to table `user`,
  * adding name to table `user`,
@@ -21,10 +20,9 @@ class m160525_015327_add_necessary_columns_to_user extends Migration
     /**
      * @inheritdoc
      */
-    public function safeUp()
+    public function Up()
     {
-        $this->addColumn('user', 'role', $this->integer(2)->notNUll()->defaultValue(10)->after('username'));
-        $this->dropColumn('user', 'username');
+        $this->addColumn('user', 'role', $this->integer(2)->notNUll()->defaultValue(10)->after('email'));
         $this->addColumn('user', 'account_registration_token', $this->string()->defaultValue(Null)->after('password_reset_token'));
         $this->addColumn('user', 'name', $this->string(255)->defaultValue(Null)->after('status'));
         $this->addColumn('user', 'sex', $this->string(10)->after('name'));
@@ -38,10 +36,9 @@ class m160525_015327_add_necessary_columns_to_user extends Migration
     /**
      * @inheritdoc
      */
-    public function safeDown()
+    public function Down()
     {
         $this->dropColumn('user', 'role');
-        $this->addColumn('user', 'username', $this->string(255)->notNUll()->after('id'));
         $this->dropColumn('user', 'account_registration_token');
         $this->dropColumn('user', 'name');
         $this->dropColumn('user', 'sex');
